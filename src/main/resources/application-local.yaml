@@ -1,0 +1,21 @@
+spring:
+
+  config:
+    import: file:.env.local[.properties]
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  refresh-token:
+    cookie:
+      secure: false
+      same-site: Lax
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.flywaydb: DEBUG

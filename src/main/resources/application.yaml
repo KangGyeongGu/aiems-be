@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: spring-boot-starter-template
+
+  profiles:
+    default: local
+
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    locations: classpath:db/migration/{vendor}
+    baseline-on-migrate: true
+
+server:
+  shutdown: graceful
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-expiration: 1h
+  refresh-expiration: 14d
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+app:
+  websocket:
+    enabled: ${WEBSOCKET_ENABLED}
+
+  redis:
+    auth:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  refresh-token:
+    store: ${REFRESH_TOKEN_STORE}
+    cookie:
+      name: refresh_token
+      path: /api/v1/auth
+
+  auth:
+    local:
+      enabled: ${AUTH_LOCAL_ENABLED}
+    social:
+      enabled: ${AUTH_SOCIAL_ENABLED}
+
+  oauth2:
+    success-redirect-uri: ${OAUTH2_SUCCESS_REDIRECT_URI}
+    failure-redirect-uri: ${OAUTH2_FAILURE_REDIRECT_URI}
+    google:
+      client-id: ${GOOGLE_CLIENT_ID}
+      client-secret: ${GOOGLE_CLIENT_SECRET}
+    kakao:
+      client-id: ${KAKAO_CLIENT_ID}
+      client-secret: ${KAKAO_CLIENT_SECRET}
+    naver:
+      client-id: ${NAVER_CLIENT_ID}
+      client-secret: ${NAVER_CLIENT_SECRET}
+    github:
+      client-id: ${GITHUB_CLIENT_ID}
+      client-secret: ${GITHUB_CLIENT_SECRET}

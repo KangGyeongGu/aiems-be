@@ -1,0 +1,27 @@
+name: spring-boot-starter-template-local
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: spring-template-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: template
+      POSTGRES_USER: mydatabase
+      POSTGRES_PASSWORD: mydatabase
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mydatabase -d template"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: spring-template-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.data/redis:/data
