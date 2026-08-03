@@ -12,7 +12,7 @@ app:
   refresh-token:
     cookie:
       secure: true
-      same-site: Lax
+      same-site: None
 
 logging:
   level:

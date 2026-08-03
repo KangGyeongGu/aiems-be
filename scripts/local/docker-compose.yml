@@ -24,8 +24,32 @@ services:
 
   redis-auth:
     image: redis:7-alpine
-    container_name: redis-auth
+    container_name: aiems-redis-auth
     ports:
       - "6379:6379"
     volumes:
       - ./.data/redis:/data
+
+  redis-service:
+    image: redis:7.2
+    container_name: aiems-redis-service
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+    volumes:
+      - ./.data/redis-service:/data
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: aiems-rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:61613:61613"
+      - "127.0.0.1:15692:15692"
+    restart: unless-stopped
+    volumes:
+      - ./.data/rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq/load-defs.conf:/etc/rabbitmq/conf.d/20-load-defs.conf:ro

@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "name": "aiems",
+      "password_hash": "lYfNR7QGLDdnTiAY88yhbM1HopPg4Ht17et7XvcdTnbCgb7t",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": ["administrator"]
+    }
+  ],
+  "vhosts": [
+    { "name": "ai_server" }
+  ],
+  "permissions": [
+    {
+      "user": "aiems",
+      "vhost": "ai_server",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "policies": [
+    {
+      "vhost": "ai_server",
+      "name": "expire-stomp-user",
+      "pattern": ".*-user",
+      "apply-to": "queues",
+      "priority": 0,
+      "definition": { "expires": 60000 }
+    }
+  ]
+}
