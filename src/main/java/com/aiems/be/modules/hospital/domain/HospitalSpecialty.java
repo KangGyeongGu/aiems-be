@@ -1,4 +1,4 @@
-package com.aiems.be.modules.auth.domain;
+package com.aiems.be.modules.hospital.domain;
 
 import com.aiems.be.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -10,23 +10,19 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "member_type")
 @Entity
-public class Member extends BaseTimeEntity {
+public class HospitalSpecialty extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id", updatable = false)
+    @Column(name = "hospital_specialty_id")
     private Long id;
 
-    @Column(nullable = false, updatable = false)
-    private String loginId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    private Hospital hospital;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String password;
-
-    public String getRole() {
-        return "MEMBER";
-    }
+    private Specialty specialty;
 }
