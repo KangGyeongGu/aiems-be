@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 
     /** DB Migration */
     implementation 'org.flywaydb:flyway-core'
@@ -36,6 +37,24 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    /** 좌표 POINT, 공간 쿼리 */
+    implementation 'org.hibernate.orm:hibernate-spatial'
+
+
+    /** RabbitMQ 비동기 + STOMP 릴레이 */
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    /** STOMP Broker Relay */
+    implementation 'io.projectreactor.netty:reactor-netty-core'
+    implementation 'io.projectreactor.netty:reactor-netty-http'
+
+    /** ShedLock */
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:6.3.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:6.3.0'
+
+    /** Jackson XML */
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 
     /** Lombok */
     annotationProcessor 'org.projectlombok:lombok'
