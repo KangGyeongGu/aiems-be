@@ -57,21 +57,3 @@ app:
   auth:
     local:
       enabled: ${AUTH_LOCAL_ENABLED}
-    social:
-      enabled: ${AUTH_SOCIAL_ENABLED}
-
-  oauth2:
-    success-redirect-uri: ${OAUTH2_SUCCESS_REDIRECT_URI}
-    failure-redirect-uri: ${OAUTH2_FAILURE_REDIRECT_URI}
-    google:
-      client-id: ${GOOGLE_CLIENT_ID}
-      client-secret: ${GOOGLE_CLIENT_SECRET}
-    kakao:
-      client-id: ${KAKAO_CLIENT_ID}
-      client-secret: ${KAKAO_CLIENT_SECRET}
-    naver:
-      client-id: ${NAVER_CLIENT_ID}
-      client-secret: ${NAVER_CLIENT_SECRET}
-    github:
-      client-id: ${GITHUB_CLIENT_ID}
-      client-secret: ${GITHUB_CLIENT_SECRET}

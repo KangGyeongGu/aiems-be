@@ -1,26 +1,30 @@
-name: spring-boot-starter-template-local
+name: aiems-local
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: spring-template-postgres
+  mysql:
+    image: mysql:8.0.42
+    container_name: aiems-database
     ports:
-      - "5432:5432"
+      - "127.0.0.1:3306:3306"
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: template
-      POSTGRES_USER: mydatabase
-      POSTGRES_PASSWORD: mydatabase
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aiems
+      MYSQL_USER: aiems
+      MYSQL_PASSWORD: aiems
+      TZ: Asia/Seoul
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ./.data/postgres:/var/lib/postgresql/data
+      - ./.data/mysql:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mydatabase -d template"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u aiems -paiems --silent"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
 
-  redis:
+  redis-auth:
     image: redis:7-alpine
-    container_name: spring-template-redis
+    container_name: redis-auth
     ports:
       - "6379:6379"
     volumes:

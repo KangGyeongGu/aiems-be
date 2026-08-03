@@ -38,12 +38,12 @@
 
 | # | 대상 | 변경 | 방법 |
 |---|---|---|---|
-| 1 | 패키지 `com.A.B` | 새 패키지 | IDE 리팩터링 |
+| 1 | 패키지 `com.aiems.be` | 새 패키지 | IDE 리팩터링 |
 | 2 | 진입점 `BApplication` | 새 이름 | IDE 리팩터링 |
 | 3 | `settings.gradle` 의 `rootProject.name` | 새 프로젝트명 | 수기 |
 | 4 | `build.gradle` 의 `group` | 새 패키지 | 수기 |
-| 5 | `ApiResponseAdvice` 의 `@RestControllerAdvice(basePackages = "com.A.B")` | 새 패키지 | 수기 |
-| 6 | `lombok.config` 의 `com.A.B.config.AuthRedis` | 새 패키지 | 수기 |
+| 5 | `ApiResponseAdvice` 의 `@RestControllerAdvice(basePackages = "com.aiems.be")` | 새 패키지 | 수기 |
+| 6 | `lombok.config` 의 `com.aiems.be.config.AuthRedis` | 새 패키지 | 수기 |
 | 7 | `scripts/local/docker-compose.yml` 의 `container_name` · `POSTGRES_DB` · `POSTGRES_USER` · healthcheck | 새 프로젝트명 | 수기 |
 
 </br>
