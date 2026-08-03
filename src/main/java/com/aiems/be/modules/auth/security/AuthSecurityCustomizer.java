@@ -10,6 +10,6 @@ public class AuthSecurityCustomizer implements HttpSecurityCustomizer {
     @Override
     public void customize(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/reissue", "/api/v1/auth/logout").permitAll());
+                .requestMatchers("/api/v1/auth/**").permitAll());
     }
 }

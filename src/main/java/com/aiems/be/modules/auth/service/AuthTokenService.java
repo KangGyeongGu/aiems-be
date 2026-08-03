@@ -1,8 +1,8 @@
 package com.aiems.be.modules.auth.service;
 
 import com.aiems.be.common.config.JwtProperties;
+import com.aiems.be.common.domain.Role;
 import com.aiems.be.common.security.JwtTokenProvider;
-import com.aiems.be.modules.auth.domain.Role;
 import com.aiems.be.modules.auth.token.RefreshTokenGenerator;
 import com.aiems.be.modules.auth.token.RefreshTokenStore;
 import com.aiems.be.modules.auth.token.TokenPair;

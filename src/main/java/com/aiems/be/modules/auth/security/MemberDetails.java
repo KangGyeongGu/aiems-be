@@ -1,9 +1,8 @@
 package com.aiems.be.modules.auth.security;
 
-import com.aiems.be.modules.auth.domain.LocalAccount;
+import com.aiems.be.common.domain.Role;
+import com.aiems.be.modules.Ambulance.domain.Ambulance;
 import com.aiems.be.modules.auth.domain.Member;
-import com.aiems.be.modules.auth.domain.MemberStatus;
-import com.aiems.be.modules.auth.domain.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,30 +11,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class LocalUserDetails implements UserDetails {
+public class MemberDetails implements UserDetails {
 
     @Getter private final Long memberId;
     private final String loginId;
     private final String password;
     @Getter private final Role role;
-    private final boolean active;
+    @Getter private final String deviceId;
 
-    private LocalUserDetails(Long memberId, String loginId, String password, Role role, boolean active) {
+    private MemberDetails(Long memberId, String loginId, String password, Role role, String deviceId) {
         this.memberId = memberId;
         this.loginId = loginId;
         this.password = password;
         this.role = role;
-        this.active = active;
+        this.deviceId = deviceId;
     }
 
-    public static LocalUserDetails from(LocalAccount account) {
-        Member member = account.getMember();
-        return new LocalUserDetails(
+    public static MemberDetails from(Member member) {
+        String deviceId = member instanceof Ambulance ambulance ? ambulance.getDeviceId() : null;
+
+        return new MemberDetails(
                 member.getId(),
-                account.getLoginId(),
-                account.getPassword(),
-                member.getRole(),
-                member.getStatus() == MemberStatus.ACTIVE
+                member.getLoginId(),
+                member.getPassword(),
+                Role.valueOf(member.getRole()),
+                deviceId
         );
     }
 
@@ -50,12 +50,5 @@ public class LocalUserDetails implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return loginId;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return active;
-    }
+    public String getUsername() { return loginId; }
 }
