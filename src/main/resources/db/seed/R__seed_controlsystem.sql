@@ -2,25 +2,25 @@
 -- 전국 19개 소방재난본부 정보
 
 INSERT INTO member (member_id, login_id, password, member_type, created_at, updated_at) VALUES
-    (100001, 'seoul_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100002, 'busan_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100003, 'incheon_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100004, 'daegu_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100005, 'gwangju_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100006, 'daejeon_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100007, 'ulsan_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100008, 'sejong_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100009, 'gyeonggi_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100010, 'gyeonggi_north_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100011, 'gangwon_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100012, 'chungbuk_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100013, 'chungnam_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100014, 'jeonbuk_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100015, 'jeonnam_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100016, 'gyeongbuk_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100017, 'gyeongnam_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100018, 'changwon_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
-    (100019, 'jeju_control@fire.go.kr', '$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW());
+    (100001, 'seoul_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100002, 'busan_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100003, 'incheon_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100004, 'daegu_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100005, 'gwangju_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100006, 'daejeon_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100007, 'ulsan_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100008, 'sejong_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100009, 'gyeonggi_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100010, 'gyeonggi_north_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100011, 'gangwon_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100012, 'chungbuk_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100013, 'chungnam_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100014, 'jeonbuk_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100015, 'jeonnam_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100016, 'gyeongbuk_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100017, 'gyeongnam_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100018, 'changwon_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW()),
+    (100019, 'jeju_control@fire.go.kr', '{bcrypt}$2y$10$/G0dMUhMeohGHBCzDpE49egUps06FAxF.1MDDcg6mWMNtd.rqhL7G', 'ControlSystem', NOW(), NOW());
 
 -- Control_System 테이블에 상세 정보 추가 (실제 GPS 좌표 포함)
 INSERT INTO control_system (member_id, system_name, control_system_address, control_system_coordinates) VALUES
