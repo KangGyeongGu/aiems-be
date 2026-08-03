@@ -31,7 +31,7 @@ public class MemberAuthenticationProvider extends DaoAuthenticationProvider {
             throw new BadCredentialsException("해당 계정 소속이 아닙니다.");
         }
 
-        if (token.getDeviceId() != null && token.getDeviceId().equals(member.getDeviceId())) {
+        if (token.getDeviceId() != null && !token.getDeviceId().equals(member.getDeviceId())) {
             throw new BadCredentialsException("해당 구급차에 연결된 기기가 아닙니다.");
         }
     }

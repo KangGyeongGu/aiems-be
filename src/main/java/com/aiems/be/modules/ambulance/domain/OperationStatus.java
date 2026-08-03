@@ -1,4 +1,4 @@
-package com.aiems.be.modules.Ambulance.domain;
+package com.aiems.be.modules.ambulance.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

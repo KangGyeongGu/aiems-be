@@ -1,7 +1,7 @@
 package com.aiems.be.modules.auth.security;
 
 import com.aiems.be.common.domain.Role;
-import com.aiems.be.modules.Ambulance.domain.Ambulance;
+import com.aiems.be.modules.ambulance.domain.Ambulance;
 import com.aiems.be.modules.auth.domain.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

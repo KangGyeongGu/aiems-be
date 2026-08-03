@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 public enum AuthErrorCode implements ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
-    DEVICE_NOT_REGISTERED(HttpStatus.UNAUTHORIZED, "해당 구급차에 등록된 기기가 아닙니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다.");
 
     private final HttpStatus httpStatus;

@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: spring-boot-starter-template
+    name: aiems-be
 
   profiles:
     default: local
@@ -86,10 +86,6 @@ app:
     cookie:
       name: refresh_token
       path: /api/v1/auth
-
-  auth:
-    local:
-      enabled: ${AUTH_LOCAL_ENABLED}
 
 openapi:
   nmc:
