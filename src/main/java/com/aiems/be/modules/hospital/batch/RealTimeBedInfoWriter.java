@@ -1,0 +1,23 @@
+package com.aiems.be.modules.hospital.batch;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.time.Duration;
+
+@RequiredArgsConstructor
+public class RealTimeBedInfoWriter implements ItemWriter<RealTimeBedCacheEntry> {
+
+    private static final Duration CACHE_TTL = Duration.ofMinutes(30);
+
+    private final StringRedisTemplate redisTemplate;
+
+    @Override
+    public void write(@NonNull Chunk<? extends RealTimeBedCacheEntry> chunk) throws Exception {
+        chunk.getItems().forEach(entry ->
+                redisTemplate.opsForValue().set(entry.key(), entry.value(), CACHE_TTL));
+    }
+}
