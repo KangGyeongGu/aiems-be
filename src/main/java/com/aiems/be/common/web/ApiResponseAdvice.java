@@ -47,6 +47,10 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
             return body;
         }
 
+        if (selectedContentType.isCompatibleWith(MediaType.APPLICATION_XML)) {
+            return body;
+        }
+
         ApiResponse<Object> wrapped = ApiResponse.success(body, MDC.get(RequestIdFilter.MDC_KEY));
 
         if (body instanceof String) {
