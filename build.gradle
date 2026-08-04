@@ -41,7 +41,6 @@ dependencies {
     /** 좌표 POINT, 공간 쿼리 */
     implementation 'org.hibernate.orm:hibernate-spatial'
 
-
     /** RabbitMQ 비동기 + STOMP 릴레이 */
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
