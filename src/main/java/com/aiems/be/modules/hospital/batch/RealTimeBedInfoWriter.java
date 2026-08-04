@@ -4,8 +4,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @RequiredArgsConstructor
@@ -17,7 +19,14 @@ public class RealTimeBedInfoWriter implements ItemWriter<RealTimeBedCacheEntry> 
 
     @Override
     public void write(@NonNull Chunk<? extends RealTimeBedCacheEntry> chunk) throws Exception {
-        chunk.getItems().forEach(entry ->
-                redisTemplate.opsForValue().set(entry.key(), entry.value(), CACHE_TTL));
+        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            chunk.getItems().forEach(entry ->
+                    connection.stringCommands().setEx(
+                            entry.key().getBytes(StandardCharsets.UTF_8),
+                            CACHE_TTL.toSeconds(),
+                            entry.value().getBytes(StandardCharsets.UTF_8)
+                    ));
+            return null;
+        });
     }
 }
