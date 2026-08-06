@@ -1,8 +1,8 @@
 package com.aiems.be.modules.hospital.service.policy;
 
-import com.aiems.be.modules.hospital.domain.Hospital;
-import com.aiems.be.modules.hospital.domain.Specialty;
-import com.aiems.be.modules.patient.service.result.SpecialtyConfidence;
+import com.aiems.be.modules.auth.domain.Hospital;
+import com.aiems.be.common.domain.Specialty;
+import com.aiems.be.modules.transfer.messaging.contract.SpecialtyConfidence;
 import lombok.Builder;
 import lombok.Getter;
 

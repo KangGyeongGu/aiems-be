@@ -1,7 +1,7 @@
 package com.aiems.be.modules.hospital.repository;
 
-import com.aiems.be.modules.hospital.domain.Hospital;
-import com.aiems.be.modules.hospital.repository.dto.HospitalWithDistanceDto;
+import com.aiems.be.modules.auth.domain.Hospital;
+import com.aiems.be.modules.hospital.repository.projection.HospitalWithDistance;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +15,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
     @Query("""
         SELECT
-          new com.aiems.be.modules.hospital.repository.dto.HospitalWithDistanceDto(
+          new com.aiems.be.modules.hospital.repository.projection.HospitalWithDistance(
             h,
             cast(
               ST_Distance_Sphere(
@@ -36,7 +36,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
             h.location.coordinates
           ) ASC
     """)
-    List<HospitalWithDistanceDto> findNearbyHospitals (
+    List<HospitalWithDistance> findNearbyHospitals (
             @Param("longitude") double longitude,
             @Param("latitude") double latitude,
             @Param("radius") double radiusMeters
@@ -44,7 +44,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
     @Query("""
         SELECT
-          new com.aiems.be.modules.hospital.repository.dto.HospitalWithDistanceDto(
+          new com.aiems.be.modules.hospital.repository.projection.HospitalWithDistance(
             h,
             cast(
               ST_Distance_Sphere(
@@ -63,7 +63,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
             h.location.coordinates
           ) ASC
     """)
-    List<HospitalWithDistanceDto> findNearbyHospitalsV2 (
+    List<HospitalWithDistance> findNearbyHospitalsV2 (
             @Param("longitude") double longitude,
             @Param("latitude") double latitude,
             @Param("radius") double radius
@@ -71,7 +71,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
     @Query("""
         SELECT
-          new com.aiems.be.modules.hospital.repository.dto.HospitalWithDistanceDto(
+          new com.aiems.be.modules.hospital.repository.projection.HospitalWithDistance(
             h,
             cast(
               ST_Distance_Sphere(
@@ -90,7 +90,7 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
             h.location.coordinates
           ) ASC
     """)
-    List<HospitalWithDistanceDto> findNearbyHospitalsWithLevel (
+    List<HospitalWithDistance> findNearbyHospitalsWithLevel (
             @Param("longitude") double longitude,
             @Param("latitude") double latitude,
             @Param("radius") double radius,
