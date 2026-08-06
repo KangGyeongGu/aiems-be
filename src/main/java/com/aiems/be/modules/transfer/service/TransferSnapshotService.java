@@ -1,52 +1,42 @@
 package com.aiems.be.modules.transfer.service;
 
-import com.aiems.be.modules.transfer.service.command.TransferRequestSnapshotCommand;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.aiems.be.config.ServiceRedis;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 
-@Slf4j
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
+@RequiredArgsConstructor
 public class TransferSnapshotService {
 
-    private static final String TRANSFER_REQUEST_SNAPSHOT_KEY_PREFIX = "transfer_request_snapshot:";
+    private static final String KEY_PREFIX = "transfer:request:snapshot:";
+    private static final Duration TTL = Duration.ofMinutes(30);
 
-    @ServiceRedis private final StringRedisTemplate redisTemplate;
+    @ServiceRedis
+    private final StringRedisTemplate redisTemplate;
 
-    @Transactional
-    public void saveTransferRequestSnapshot(TransferRequestSnapshotCommand command) {
-        String key = getTransferRequestSnapshotKey(command.ambulanceId());
+    public void save(Long ambulanceId, List<Long> hospitalIds) {
+        String key = key(ambulanceId);
         redisTemplate.delete(key);
 
-        String[] requestedHospitals = command.hospitalIds()
-                .stream()
-                .map(String::valueOf)
-                .toArray(String[]::new);
-
-        redisTemplate.opsForSet().add(key, requestedHospitals);
+        String[] members = hospitalIds.stream().map(String::valueOf).toArray(String[]::new);
+        redisTemplate.opsForSet().add(key, members);
+        redisTemplate.expire(key, TTL);
     }
 
-    public List<Long> getTransferRequestSnapshot(Long ambulanceId) {
-        List<Long> requestedHospitals = redisTemplate.opsForSet()
-                .members(getTransferRequestSnapshotKey(ambulanceId))
-                .stream()
-                .map(Long::valueOf)
-                .toList();
-
-        redisTemplate.expire(getTransferRequestSnapshotKey(ambulanceId), Duration.ofMinutes(30));
-        return requestedHospitals;
+    public List<Long> find(Long ambulanceId) {
+        Set<String> members = redisTemplate.opsForSet().members(key(ambulanceId));
+        if (members == null) {
+            return List.of();
+        }
+        return members.stream().map(Long::valueOf).toList();
     }
 
-    private String getTransferRequestSnapshotKey(Long ambulanceId) {
-        return TRANSFER_REQUEST_SNAPSHOT_KEY_PREFIX + ambulanceId;
+    private String key(Long ambulanceId) {
+        return KEY_PREFIX + ambulanceId;
     }
-
 }

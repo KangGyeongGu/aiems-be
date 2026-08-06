@@ -1,8 +1,8 @@
-package com.aiems.be.modules.patient.domain;
+package com.aiems.be.modules.transfer.domain;
 
 import com.aiems.be.common.domain.BaseTimeEntity;
 import com.aiems.be.common.domain.Location;
-import com.aiems.be.modules.ambulance.domain.Ambulance;
+import com.aiems.be.modules.auth.domain.Ambulance;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

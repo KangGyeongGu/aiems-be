@@ -1,113 +1,98 @@
 package com.aiems.be.modules.transfer.service;
 
 import com.aiems.be.common.exception.BusinessException;
-import com.aiems.be.common.exception.CommonErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.aiems.be.modules.ambulance.service.AmbulanceService;
-import com.aiems.be.modules.patient.domain.Patient;
+import com.aiems.be.modules.transfer.domain.Gender;
+import com.aiems.be.modules.transfer.domain.PreKTAS;
 import com.aiems.be.modules.transfer.domain.TransferRecord;
+import com.aiems.be.modules.transfer.exception.TransferErrorCode;
 import com.aiems.be.modules.transfer.repository.TransferRecordRepository;
-import com.aiems.be.modules.transfer.repository.dto.TransferRecordDto;
-import com.aiems.be.modules.transfer.repository.dto.TransferRecordSummaryDto;
-import com.aiems.be.modules.transfer.service.command.TransferRecordInitCommand;
-import com.aiems.be.modules.transfer.web.request.TransferRecordSearchRequest;
-import com.aiems.be.modules.transfer.web.response.TransferRecordResponse;
-import com.aiems.be.modules.transfer.web.response.TransferRecordSummaryResponse;
-import com.aiems.be.modules.transfer.web.response.TreatmentRecordResponse;
+import com.aiems.be.modules.transfer.repository.projection.TransferRecordDetail;
+import com.aiems.be.modules.transfer.repository.projection.TransferRecordSummary;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransferRecordService {
 
     private final TransferRecordRepository transferRecordRepository;
-    private final AmbulanceService ambulanceService;
-
-    @Transactional(readOnly = true)
-    public TreatmentRecordResponse searchTransferRecord(Long transferRecordId) {
-        TransferRecordDto transferRecord = transferRecordRepository.findByTransferRecordId(transferRecordId)
-                .orElseThrow(() -> new BusinessException(CommonErrorCode.NOT_FOUND));
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-
-        TreatmentRecordResponse response = null;
-        try {
-            response = mapper.readValue(transferRecord.getTreatmentRecord(), TreatmentRecordResponse.class);
-        } catch (Exception e) {
-            log.warn("이송 기록의 치료 기록을 파싱하는데 실패했습니다. transferRecordId: {}", transferRecordId, e);
-            throw new RuntimeException(e);
-        }
-
-        return response;
-    }
+    private final PatientService patientService;
 
     @Transactional
-    public void saveTreatmentRecord(Long ambulanceId, String treatmentRecord) {
-        Long patientId = ambulanceService.searchMyPatient(ambulanceId).getId();
-        transferRecordRepository.findByAmbulanceIdAndPatientId(ambulanceId, patientId)
-                .ifPresent((transferRecord) -> {
-                    transferRecord.updateTreatmentRecord(treatmentRecord);
-                });
-    }
-
-    @Transactional
-    public TransferRecord initRecord(TransferRecordInitCommand command) {
-        Patient patient = ambulanceService.searchMyPatient(command.ambulanceId());
-
+    public TransferRecord open(Long ambulanceId, Long hospitalId, Long patientId, Instant startedAt) {
         TransferRecord record = TransferRecord.builder()
-                .ambulanceId(command.ambulanceId())
-                .patientId(patient.getId())
-                .hospitalId(command.hospitalId())
-                .startedAt(command.startedAt())
+                .ambulanceId(ambulanceId)
+                .hospitalId(hospitalId)
+                .patientId(patientId)
+                .startedAt(startedAt)
                 .build();
 
         return transferRecordRepository.save(record);
     }
 
-    @Transactional(readOnly = true)
-    public TransferRecordResponse getTransferRecord(Long transferRecordId) {
-        TransferRecordDto transferRecord = transferRecordRepository.findByTransferRecordId(transferRecordId)
-                .orElseThrow(() -> new BusinessException(CommonErrorCode.NOT_FOUND, "조회된 기록이 없습니다."));
+    @Transactional
+    public TransferRecord close(Long ambulanceId, Instant completedAt) {
+        TransferRecord ongoing = transferRecordRepository.findOngoingTransferRecord(ambulanceId)
+                .orElseThrow(() -> new BusinessException(TransferErrorCode.ONGOING_TRANSFER_NOT_FOUND));
 
-        return TransferRecordResponse.from(transferRecord);
+        ongoing.markCompleteTime(completedAt);
+        return ongoing;
+    }
+
+    @Transactional
+    public void saveJournal(Long ambulanceId, String journalJson) {
+        Long patientId = patientService.findCurrentPatient(ambulanceId).getId();
+        transferRecordRepository.findByAmbulanceIdAndPatientId(ambulanceId, patientId)
+                .ifPresent(record -> record.updateTreatmentRecord(journalJson));
     }
 
     @Transactional(readOnly = true)
-    public Page<TransferRecordSummaryResponse> getTransferRecords(
-            Long hospitalId,
-            Pageable pageable,
-            TransferRecordSearchRequest searchRequest) {
-        Page<TransferRecordSummaryDto> transferRecords = transferRecordRepository.findAllSummaries(
+    public TransferRecordDetail getDetail(Long transferRecordId) {
+        return transferRecordRepository.findByTransferRecordId(transferRecordId)
+                .orElseThrow(() -> new BusinessException(TransferErrorCode.TRANSFER_RECORD_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public String getJournalJson(Long transferRecordId) {
+        return getDetail(transferRecordId).treatmentRecord();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TransferRecordSummary> getSummaries(Long hospitalId, TransferRecordSearch search, Pageable pageable) {
+        return transferRecordRepository.findAllSummaries(
                 hospitalId,
-                searchRequest.getPatientName(),
-                searchRequest.getPatientAge(),
-                searchRequest.getPatientGender(),
-                searchRequest.getSymptoms(),
-                searchRequest.getPreKTAS(),
-                searchRequest.getAmbulanceLicensePlate(),
-                searchRequest.getFireStationName(),
-                searchRequest.getStartedAtFrom(),
-                searchRequest.getStartedAtTo(),
-                searchRequest.getEndedAtFrom(),
-                searchRequest.getEndedAtTo(),
+                search.patientName(),
+                search.patientAge(),
+                search.patientGender(),
+                search.symptoms(),
+                search.preKtas(),
+                search.ambulanceLicensePlate(),
+                search.fireStationName(),
+                search.startedAtFrom(),
+                search.startedAtTo(),
+                search.endedAtFrom(),
+                search.endedAtTo(),
                 pageable
         );
-        return transferRecords.map(TransferRecordSummaryResponse::from);
     }
 
-    @Transactional(readOnly = true)
-    public TransferRecord searchOngoingTransfer(Long ambulanceId) {
-        return transferRecordRepository.findOngoingTransferRecord(ambulanceId)
-                .orElseThrow(() -> new IllegalStateException("해당 구급차의 진행 중인 이송 기록이 없습니다. [ambulanceId=%s]".formatted(ambulanceId)));
+    public record TransferRecordSearch(
+            String patientName,
+            Integer patientAge,
+            Gender patientGender,
+            String symptoms,
+            PreKTAS preKtas,
+            String ambulanceLicensePlate,
+            String fireStationName,
+            Instant startedAtFrom,
+            Instant startedAtTo,
+            Instant endedAtFrom,
+            Instant endedAtTo
+    ) {
     }
-
 }

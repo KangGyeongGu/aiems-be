@@ -1,10 +1,10 @@
 package com.aiems.be.modules.transfer.repository;
 
-import com.aiems.be.modules.patient.domain.Gender;
-import com.aiems.be.modules.patient.domain.PreKTAS;
+import com.aiems.be.modules.transfer.domain.Gender;
+import com.aiems.be.modules.transfer.domain.PreKTAS;
 import com.aiems.be.modules.transfer.domain.TransferRecord;
-import com.aiems.be.modules.transfer.repository.dto.TransferRecordDto;
-import com.aiems.be.modules.transfer.repository.dto.TransferRecordSummaryDto;
+import com.aiems.be.modules.transfer.repository.projection.TransferRecordDetail;
+import com.aiems.be.modules.transfer.repository.projection.TransferRecordSummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +20,7 @@ public interface TransferRecordRepository extends JpaRepository<TransferRecord, 
 
     @Query("""
         SELECT
-            new com.aiems.be.modules.transfer.repository.dto.TransferRecordDto(
+            new com.aiems.be.modules.transfer.repository.projection.TransferRecordDetail(
                 tr.id,
                 a,
                 h,
@@ -39,11 +39,11 @@ public interface TransferRecordRepository extends JpaRepository<TransferRecord, 
         JOIN Hospital h ON tr.hospitalId = h.id
         WHERE tr.id = :id
     """)
-    Optional<TransferRecordDto> findByTransferRecordId(@Param("id") Long id);
+    Optional<TransferRecordDetail> findByTransferRecordId(@Param("id") Long id);
 
     @Query("""
     SELECT
-        new com.aiems.be.modules.transfer.repository.dto.TransferRecordSummaryDto(
+        new com.aiems.be.modules.transfer.repository.projection.TransferRecordSummary(
             tr.id,
             tr.endedAt,
             a.licensePlate,
@@ -72,7 +72,7 @@ public interface TransferRecordRepository extends JpaRepository<TransferRecord, 
       AND (:endedAtFrom IS NULL OR tr.endedAt >= :endedAtFrom)
       AND (:endedAtTo IS NULL OR tr.endedAt <= :endedAtTo)
 """)
-    Page<TransferRecordSummaryDto> findAllSummaries(
+    Page<TransferRecordSummary> findAllSummaries(
             @Param("hospitalId") Long hospitalId,
             @Param("patientName") String patientName,
             @Param("patientAge") Integer patientAge,

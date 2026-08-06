@@ -1,4 +1,4 @@
-package com.aiems.be.modules.patient.domain;
+package com.aiems.be.modules.transfer.domain;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

@@ -1,4 +1,4 @@
-package com.aiems.be.modules.patient.domain;
+package com.aiems.be.modules.transfer.domain;
 
 public enum Gender {
     MALE,
