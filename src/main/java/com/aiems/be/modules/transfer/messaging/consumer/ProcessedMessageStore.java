@@ -1,4 +1,4 @@
-package com.aiems.be.modules.transfer.consumer;
+package com.aiems.be.modules.transfer.messaging.consumer;
 
 import com.aiems.be.config.ServiceRedis;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -19,7 +19,7 @@ public class ProcessedMessageStore {
     }
 
     public boolean isProcessed(String messageId) {
-        return redisTemplate.hasKey(KEY_PREFIX + messageId);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(KEY_PREFIX + messageId));
     }
 
     public void mark(String messageId) {

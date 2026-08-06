@@ -1,7 +1,7 @@
-package com.aiems.be.modules.transfer.consumer;
+package com.aiems.be.modules.transfer.messaging.consumer;
 
+import com.aiems.be.modules.transfer.messaging.contract.SummaryJobMessage;
 import com.aiems.be.modules.transfer.service.TransferRecordService;
-import com.aiems.be.modules.transfer.web.message.SummaryJobMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -16,27 +16,27 @@ import org.springframework.stereotype.Component;
 @Profile("!test")
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.role.consumer.enabled", havingValue = "true")
-public class SummaryJobConsumer {
+public class SummaryReplyConsumer {
 
     private final TransferRecordService transferRecordService;
     private final ProcessedMessageStore processedMessageStore;
 
     @RabbitListener(queues = "${app.rabbitmq.summary-reply-queue}")
-    public void consumeSummaryJob(
-            SummaryJobMessage resultMessage,
+    public void consume(
+            SummaryJobMessage reply,
             @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
 
-        if (resultMessage == null) {
-            log.warn("AI 응답이 null 입니다.");
+        if (reply == null) {
+            log.warn("AI 요약 응답이 null 입니다.");
             return;
         }
 
         if (messageId != null && processedMessageStore.isProcessed(messageId)) {
-            log.info("이미 처리된 요약 메시지입니다. 건너뜁니다. messageId={}", messageId);
+            log.info("이미 처리된 요약 응답입니다. 건너뜁니다. messageId={}", messageId);
             return;
         }
 
-        transferRecordService.saveTreatmentRecord(resultMessage.ambulanceId(), resultMessage.message());
+        transferRecordService.saveJournal(reply.ambulanceId(), reply.message());
 
         if (messageId != null) {
             processedMessageStore.mark(messageId);

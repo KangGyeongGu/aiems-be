@@ -1,6 +1,6 @@
-package com.aiems.be.modules.transfer.consumer;
+package com.aiems.be.modules.transfer.messaging.mock;
 
-import com.aiems.be.modules.transfer.web.message.SummaryJobMessage;
+import com.aiems.be.modules.transfer.messaging.contract.SummaryJobMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,10 +22,7 @@ public class AiSummaryMockConsumer {
 
     @RabbitListener(queues = "${app.rabbitmq.summary-queue}")
     public void summarize(SummaryJobMessage jobMessage, Message raw) {
-        SummaryJobMessage reply = SummaryJobMessage.builder()
-                .ambulanceId(jobMessage.ambulanceId())
-                .message(MOCK_SUMMARY_REPLY)
-                .build();
+        SummaryJobMessage reply = new SummaryJobMessage(jobMessage.ambulanceId(), MOCK_SUMMARY_REPLY, null);
 
         String replyTo = raw.getMessageProperties().getReplyTo();
         String messageId = raw.getMessageProperties().getMessageId();

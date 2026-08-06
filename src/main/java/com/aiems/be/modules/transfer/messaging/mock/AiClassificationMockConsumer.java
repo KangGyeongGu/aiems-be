@@ -1,10 +1,10 @@
-package com.aiems.be.modules.transfer.consumer;
+package com.aiems.be.modules.transfer.messaging.mock;
 
-import com.aiems.be.modules.hospital.domain.Specialty;
-import com.aiems.be.modules.patient.domain.PreKTAS;
-import com.aiems.be.modules.patient.service.request.PatientAnalysisRequest;
-import com.aiems.be.modules.patient.service.result.PatientAnalysisResult;
-import com.aiems.be.modules.patient.service.result.SpecialtyConfidence;
+import com.aiems.be.common.domain.Specialty;
+import com.aiems.be.modules.transfer.domain.PreKTAS;
+import com.aiems.be.modules.transfer.messaging.contract.PatientAnalysisRequest;
+import com.aiems.be.modules.transfer.messaging.contract.PatientAnalysisResult;
+import com.aiems.be.modules.transfer.messaging.contract.SpecialtyConfidence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -23,12 +23,10 @@ public class AiClassificationMockConsumer {
 
     @RabbitListener(queues = "${app.rabbitmq.classification-queue}")
     public void classify(PatientAnalysisRequest request, Message raw) {
-        PatientAnalysisResult reply = PatientAnalysisResult.builder()
-                .preKTAS(PreKTAS.LEVEL_2)
-                .specialtyConfidences(List.of(
-                        SpecialtyConfidence.builder().specialty(Specialty.INTERNAL_MEDICINE).confidence(0.82f).build(),
-                        SpecialtyConfidence.builder().specialty(Specialty.GENERAL_SURGERY).confidence(0.61f).build()))
-                .build();
+        PatientAnalysisResult reply = new PatientAnalysisResult(
+                List.of(new SpecialtyConfidence(Specialty.INTERNAL_MEDICINE, 0.82f),
+                        new SpecialtyConfidence(Specialty.GENERAL_SURGERY, 0.61f)),
+                PreKTAS.LEVEL_2);
 
         String replyTo = raw.getMessageProperties().getReplyTo();
         String correlationId = raw.getMessageProperties().getCorrelationId();
