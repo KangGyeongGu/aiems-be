@@ -1,4 +1,4 @@
-package com.aiems.be.modules.hospital.domain;
+package com.aiems.be.common.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,6 @@ public enum Specialty {
     PREVENTIVE_MEDICINE                 ("예방의학과", Bed.COMMON_WARD),
     TUBERCULOSIS_MEDICINE               ("결핵과", Bed.COMMON_WARD),
 
-    // --- 한의과 ---
     KOREAN_INTERNAL_MEDICINE            ("한방내과", Bed.COMMON_WARD),
     KOREAN_REHABILITATION_MEDICINE      ("한방재활의학과", Bed.COMMON_WARD),
     KOREAN_NEUROPSYCHIATRY              ("한방신경정신과", Bed.COMMON_WARD),

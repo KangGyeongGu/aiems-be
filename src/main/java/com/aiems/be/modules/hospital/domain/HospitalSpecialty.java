@@ -1,6 +1,8 @@
 package com.aiems.be.modules.hospital.domain;
 
+import com.aiems.be.common.domain.Specialty;
 import com.aiems.be.common.domain.BaseTimeEntity;
+import com.aiems.be.modules.auth.domain.Hospital;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.aiems.be.modules.hospital.domain;
+package com.aiems.be.common.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
