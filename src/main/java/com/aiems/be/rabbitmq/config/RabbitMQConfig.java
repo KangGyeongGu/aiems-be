@@ -32,7 +32,7 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue summaryQueue() {
-        return QueueBuilder.durable(properties.summaryReplyQueue())
+        return QueueBuilder.durable(properties.summaryQueue())
                 .withArgument("x-dead-letter-exchange", DLX_NAME)
                 .withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY)
                 .build();

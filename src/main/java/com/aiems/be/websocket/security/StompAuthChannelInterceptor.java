@@ -74,8 +74,6 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             throw new MessageDeliveryException("인증이 필요합니다.");
         }
 
-        // Destination 별 인가 규칙은 이 지점에서 추가.
     }
-
 
 }

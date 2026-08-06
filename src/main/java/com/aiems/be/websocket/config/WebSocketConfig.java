@@ -33,7 +33,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setRelayPort(relayProperties.port())
                 .setClientLogin(relayProperties.username())
                 .setClientPasscode(relayProperties.password())
-                .setSystemLogin(relayProperties.host())
+                .setSystemLogin(relayProperties.username())
                 .setSystemPasscode(relayProperties.password())
                 .setVirtualHost(relayProperties.virtualHost())
                 .setUserDestinationBroadcast("/topic/unresolved-user-destination")
