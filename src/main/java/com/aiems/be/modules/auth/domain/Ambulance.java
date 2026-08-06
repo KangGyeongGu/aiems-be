@@ -1,8 +1,7 @@
-package com.aiems.be.modules.ambulance.domain;
+package com.aiems.be.modules.auth.domain;
 
 import com.aiems.be.common.domain.Role;
 import com.aiems.be.common.domain.Sido;
-import com.aiems.be.modules.auth.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

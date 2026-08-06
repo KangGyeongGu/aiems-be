@@ -1,8 +1,7 @@
-package com.aiems.be.modules.controlsystem.domain;
+package com.aiems.be.modules.auth.domain;
 
 import com.aiems.be.common.domain.Location;
 import com.aiems.be.common.domain.Role;
-import com.aiems.be.modules.auth.domain.Member;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
