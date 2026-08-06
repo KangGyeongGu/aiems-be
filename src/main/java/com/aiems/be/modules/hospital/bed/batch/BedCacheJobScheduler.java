@@ -1,4 +1,4 @@
-package com.aiems.be.modules.hospital.batch;
+package com.aiems.be.modules.hospital.bed.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,23 +15,22 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.role.batch.enabled", havingValue = "true")
-public class RealTimeBedInfoJobScheduler {
+public class BedCacheJobScheduler {
 
     private static final String EVERY_10_MINUTES = "0 */10 * * * *";
-//    private static final String EVERY_10_MINUTES = "0 * * * * *";
 
     private final JobLauncher jobLauncher;
-    private final Job realTimeBedInfoJob;
+    private final Job bedCacheJob;
 
     @Scheduled(cron = EVERY_10_MINUTES)
-    @SchedulerLock(name = "realTimeBedInfoJob", lockAtMostFor = "PT9M", lockAtLeastFor = "PT1M")
+    @SchedulerLock(name = "bedCacheJob", lockAtMostFor = "PT9M", lockAtLeastFor = "PT1M")
     public void launch() throws Exception {
         JobParameters parameters = new JobParametersBuilder()
                 .addLong("launchedAt", System.currentTimeMillis())
                 .toJobParameters();
 
         log.info("병상 정보 갱신 배치 실행");
-        jobLauncher.run(realTimeBedInfoJob, parameters);
+        jobLauncher.run(bedCacheJob, parameters);
     }
 
 }

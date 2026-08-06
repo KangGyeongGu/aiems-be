@@ -1,4 +1,4 @@
-package com.aiems.be.modules.hospital.client.config;
+package com.aiems.be.modules.hospital.bed.client;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

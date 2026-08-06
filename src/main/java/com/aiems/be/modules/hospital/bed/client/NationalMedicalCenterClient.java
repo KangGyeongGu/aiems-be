@@ -1,8 +1,8 @@
-package com.aiems.be.modules.hospital.client;
+package com.aiems.be.modules.hospital.bed.client;
 
-import com.aiems.be.modules.hospital.client.config.NationalMedicalCenterProperties;
-import com.aiems.be.modules.hospital.client.request.RealTimeBedInfoRequest;
-import com.aiems.be.modules.hospital.client.response.RealTimeBedInfoResponse;
+import com.aiems.be.modules.hospital.bed.client.NationalMedicalCenterProperties;
+import com.aiems.be.modules.hospital.bed.client.BedInfoRequest;
+import com.aiems.be.modules.hospital.bed.client.BedInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class NationalMedicalCenterClient {
     private final RestClient nationalMedicalCenterRestClient;
     private final NationalMedicalCenterProperties properties;
 
-    public RealTimeBedInfoResponse getRealTimeBedInfo(RealTimeBedInfoRequest request) {
+    public BedInfoResponse getRealTimeBedInfo(BedInfoRequest request) {
         return nationalMedicalCenterRestClient.get()
                 .uri(EMERGENCY_REALTIME_BED_INFO_URI, uriBuilder -> uriBuilder
                         .queryParam("serviceKey", properties.apiKey())
@@ -28,6 +28,6 @@ public class NationalMedicalCenterClient {
                         .queryParam("numOfRows", request.numOfRows())
                         .build())
                 .retrieve()
-                .body(RealTimeBedInfoResponse.class);
+                .body(BedInfoResponse.class);
     }
 }

@@ -1,4 +1,4 @@
-package com.aiems.be.modules.hospital.client.mock;
+package com.aiems.be.modules.hospital.bed.mock;
 
 import com.aiems.be.common.security.HttpSecurityCustomizer;
 import org.springframework.context.annotation.Profile;

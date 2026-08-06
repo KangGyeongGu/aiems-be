@@ -1,4 +1,4 @@
-package com.aiems.be.modules.hospital.client.mock;
+package com.aiems.be.modules.hospital.bed.mock;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;

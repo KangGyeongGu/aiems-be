@@ -1,8 +1,8 @@
-package com.aiems.be.modules.hospital.batch;
+package com.aiems.be.modules.hospital.bed.batch;
 
 import com.aiems.be.config.ServiceRedis;
-import com.aiems.be.modules.hospital.client.NationalMedicalCenterClient;
-import com.aiems.be.modules.hospital.client.response.RealTimeBedInfoResponse;
+import com.aiems.be.modules.hospital.bed.client.NationalMedicalCenterClient;
+import com.aiems.be.modules.hospital.bed.client.BedInfoResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.tools.jsonrpc.JsonRpcException;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.role.batch.enabled", havingValue = "true")
-public class RealTimeBedInfoBatchConfig {
+public class BedCacheBatchConfig {
 
     private static final int CHUNK_SIZE = 100;
     private static final int RETRY_LIMIT = 3;
@@ -34,28 +34,28 @@ public class RealTimeBedInfoBatchConfig {
     private final ObjectMapper objectMapper;
 
     @Bean
-    public Job realTimeBedInfoJob(Step realTimeBedInfoStep) {
-        return new JobBuilder("realTimeBedInfoJob", jobRepository)
-                .start(realTimeBedInfoStep)
+    public Job bedCacheJob(Step bedCacheStep) {
+        return new JobBuilder("bedCacheJob", jobRepository)
+                .start(bedCacheStep)
                 .build();
     }
 
     @Bean
     @StepScope
-    public RealTimeBedInfoReader realTimeBedInfoReader() {
-        return new RealTimeBedInfoReader(client);
+    public BedCacheReader bedCacheReader() {
+        return new BedCacheReader(client);
     }
 
     @Bean
-    public Step realTimeBedInfoStep(
-            RealTimeBedInfoReader realTimeBedInfoReader,
+    public Step bedCacheStep(
+            BedCacheReader bedCacheReader,
             @ServiceRedis StringRedisTemplate serviceStringRedisTemplate
     ) {
-        return new StepBuilder("realTimeBedInfoStep", jobRepository)
-                .<RealTimeBedInfoResponse.Item, RealTimeBedCacheEntry>chunk(CHUNK_SIZE, transactionManager)
-                .reader(realTimeBedInfoReader)
-                .processor(new RealTimeBedInfoProcessor(objectMapper))
-                .writer(new RealTimeBedInfoWriter(serviceStringRedisTemplate))
+        return new StepBuilder("bedCacheStep", jobRepository)
+                .<BedInfoResponse.Item, BedCacheEntry>chunk(CHUNK_SIZE, transactionManager)
+                .reader(bedCacheReader)
+                .processor(new BedCacheProcessor(objectMapper))
+                .writer(new BedCacheWriter(serviceStringRedisTemplate))
                 .faultTolerant()
 
                 .retry(RedisConnectionFailureException.class)
