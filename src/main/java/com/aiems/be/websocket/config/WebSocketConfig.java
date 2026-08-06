@@ -24,21 +24,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
     private final StompErrorHandler stompErrorHandler;
     private final CorsProperties corsProperties;
-
-    @Bean
-    public ThreadPoolTaskScheduler wsHeartbeatScheduler() {
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(1);
-        scheduler.setThreadNamePrefix("ws-heartbeat-");
-        scheduler.initialize();
-        return scheduler;
-    }
+    private final StompRelayProperties relayProperties;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/queue")
-                .setHeartbeatValue(new long[]{10000, 10000})
-                .setTaskScheduler(wsHeartbeatScheduler());
+        registry.enableStompBrokerRelay("/topic", "/queue")
+                .setRelayHost(relayProperties.host())
+                .setRelayPort(relayProperties.port())
+                .setClientLogin(relayProperties.username())
+                .setClientPasscode(relayProperties.password())
+                .setSystemLogin(relayProperties.host())
+                .setSystemPasscode(relayProperties.password())
+                .setVirtualHost(relayProperties.virtualHost())
+                .setUserDestinationBroadcast("/topic/unresolved-user-destination")
+                .setUserRegistryBroadcast("/topic/user-registry");
+
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
     }
