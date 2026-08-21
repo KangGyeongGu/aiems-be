@@ -6,6 +6,7 @@ import com.aiems.be.modules.transfer.domain.PreKTAS;
 import com.aiems.be.modules.transfer.domain.TransferRecord;
 import com.aiems.be.modules.transfer.exception.TransferErrorCode;
 import com.aiems.be.modules.transfer.repository.TransferRecordRepository;
+import com.aiems.be.modules.transfer.repository.projection.AmbulanceTransferSummary;
 import com.aiems.be.modules.transfer.repository.projection.TransferRecordDetail;
 import com.aiems.be.modules.transfer.repository.projection.TransferRecordSummary;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,6 @@ import java.time.Instant;
 public class TransferRecordService {
 
     private final TransferRecordRepository transferRecordRepository;
-    private final PatientService patientService;
 
     @Transactional
     public TransferRecord open(Long ambulanceId, Long hospitalId, Long patientId, Instant startedAt) {
@@ -45,10 +45,9 @@ public class TransferRecordService {
     }
 
     @Transactional
-    public void saveJournal(Long ambulanceId, String journalJson) {
-        Long patientId = patientService.findCurrentPatient(ambulanceId).getId();
+    public void saveReport(Long ambulanceId, Long patientId, String reportKey) {
         transferRecordRepository.findByAmbulanceIdAndPatientId(ambulanceId, patientId)
-                .ifPresent(record -> record.updateTreatmentRecord(journalJson));
+                .ifPresent(record -> record.updateTransferReport(reportKey));
     }
 
     @Transactional(readOnly = true)
@@ -60,6 +59,20 @@ public class TransferRecordService {
     @Transactional(readOnly = true)
     public String getJournalJson(Long transferRecordId) {
         return getDetail(transferRecordId).treatmentRecord();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AmbulanceTransferSummary> getMySummaries(Long ambulanceId, Pageable pageable) {
+        return transferRecordRepository.findSummariesByAmbulanceId(ambulanceId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public String getReportKey(Long transferRecordId, Long ambulanceId) {
+        TransferRecordDetail detail = getDetail(transferRecordId);
+        if (!detail.ambulance().getId().equals(ambulanceId)) {
+            throw new BusinessException(TransferErrorCode.TRANSFER_RECORD_NOT_FOUND);
+        }
+        return detail.transferReport();
     }
 
     @Transactional(readOnly = true)

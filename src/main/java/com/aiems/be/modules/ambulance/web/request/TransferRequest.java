@@ -1,4 +1,4 @@
-package com.aiems.be.modules.ambulance.socket.payload;
+package com.aiems.be.modules.ambulance.web.request;
 
 import com.aiems.be.common.domain.Location;
 import com.aiems.be.modules.auth.domain.Ambulance;
@@ -11,7 +11,7 @@ import com.aiems.be.modules.transfer.messaging.contract.PatientAnalysisRequest;
 import java.util.Arrays;
 import java.util.List;
 
-public record TransferRequestPayload(
+public record TransferRequest(
         String name,
         Integer age,
         String gender,
@@ -19,11 +19,11 @@ public record TransferRequestPayload(
         String cause,
         String firstAid,
         List<String> underlyingDisease,
-        VitalPayload vitalSign,
-        LocationPayload accidentLocation
+        VitalRequest vitalSign,
+        LocationRequest accidentLocation
 ) {
 
-    public TransferRequestPayload {
+    public TransferRequest {
         Arrays.stream(Gender.values())
                 .filter(g -> g.name().equals(gender))
                 .findAny()
@@ -52,7 +52,7 @@ public record TransferRequestPayload(
                 .build();
     }
 
-    public record VitalPayload(
+    public record VitalRequest(
             Integer minBloodPressure,
             Integer maxBloodPressure,
             Integer pulse,
@@ -70,7 +70,7 @@ public record TransferRequestPayload(
         }
     }
 
-    public record LocationPayload(Double lat, Double lon, String address) {
+    public record LocationRequest(Double lat, Double lon, String address) {
         Location toLocation() {
             return Location.of(Location.createCoordinates(lon(), lat()), address());
         }

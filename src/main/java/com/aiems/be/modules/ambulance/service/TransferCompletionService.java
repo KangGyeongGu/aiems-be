@@ -29,9 +29,10 @@ public class TransferCompletionService {
     private final TransferRecordService transferRecordService;
     private final AmbulanceRepository ambulanceRepository;
     private final StompEventPublisher stompEventPublisher;
+    private final TransferReportService transferReportService;
 
     @Transactional
-    public void complete(Long ambulanceId, Instant completedAt) {
+    public void finish(Long ambulanceId, String audioKey, Instant completedAt) {
         TransferRecord closed = transferRecordService.close(ambulanceId, completedAt);
 
         Ambulance ambulance = ambulanceRepository.findById(ambulanceId)
@@ -44,5 +45,7 @@ public class TransferCompletionService {
                 EventType.TRANSFER_DONE,
                 TransferDoneMessage.done(ambulanceId));
         log.info("이송 완료: ambulanceId={}, hospitalId={}", ambulanceId, closed.getHospitalId());
+
+        transferReportService.requestReport(ambulanceId, audioKey);
     }
 }

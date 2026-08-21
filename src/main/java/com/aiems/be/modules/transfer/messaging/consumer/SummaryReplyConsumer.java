@@ -1,6 +1,6 @@
 package com.aiems.be.modules.transfer.messaging.consumer;
 
-import com.aiems.be.modules.transfer.messaging.contract.SummaryJobMessage;
+import com.aiems.be.modules.transfer.messaging.contract.SummaryReportMessage;
 import com.aiems.be.modules.transfer.service.TransferRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class SummaryReplyConsumer {
 
     @RabbitListener(queues = "${app.rabbitmq.summary-reply-queue}")
     public void consume(
-            SummaryJobMessage reply,
+            SummaryReportMessage reply,
             @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
 
         if (reply == null) {
@@ -36,7 +36,7 @@ public class SummaryReplyConsumer {
             return;
         }
 
-        transferRecordService.saveJournal(reply.ambulanceId(), reply.message());
+        transferRecordService.saveReport(reply.ambulanceId(), reply.patientId(), reply.reportKey());
 
         if (messageId != null) {
             processedMessageStore.mark(messageId);

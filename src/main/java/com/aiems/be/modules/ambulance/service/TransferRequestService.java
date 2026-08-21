@@ -3,7 +3,7 @@ package com.aiems.be.modules.ambulance.service;
 import com.aiems.be.common.exception.BusinessException;
 import com.aiems.be.modules.ambulance.exception.AmbulanceErrorCode;
 import com.aiems.be.modules.ambulance.repository.AmbulanceRepository;
-import com.aiems.be.modules.ambulance.socket.payload.TransferRequestPayload;
+import com.aiems.be.modules.ambulance.web.request.TransferRequest;
 import com.aiems.be.modules.auth.domain.Ambulance;
 import com.aiems.be.modules.hospital.service.HospitalRecommendService;
 import com.aiems.be.modules.hospital.service.RecommendedHospital;
@@ -43,7 +43,7 @@ public class TransferRequestService {
     private final StompEventPublisher stompEventPublisher;
 
     @Transactional
-    public void request(TransferRequestPayload payload, Long ambulanceId) {
+    public void request(TransferRequest payload, Long ambulanceId) {
         PatientAnalysisResult analysis = aiMessageClient.requestClassification(payload.toAnalysisRequest());
         log.info("환자 분석 결과: {}", analysis);
 
