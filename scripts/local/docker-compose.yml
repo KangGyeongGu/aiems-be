@@ -53,3 +53,29 @@ services:
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
       - ./rabbitmq/load-defs.conf:/etc/rabbitmq/conf.d/20-load-defs.conf:ro
+
+  minio:
+    image: minio/minio:latest
+    container_name: aiems-minio
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: aiems
+      MINIO_ROOT_PASSWORD: aiems1234
+    command: server /data --console-address ":9001"
+    volumes:
+      - ./.data/minio:/data
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: aiems-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 aiems aiems1234; do sleep 1; done;
+      mc mb --ignore-existing local/aiems-voice;
+      mc mb --ignore-existing local/aiems-report;
+      "
