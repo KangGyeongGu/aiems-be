@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/transfers")
+@RequestMapping("/api/v1/hospital/transfers")
 public class TransferRecordController {
 
     private final TransferRecordService transferRecordService;

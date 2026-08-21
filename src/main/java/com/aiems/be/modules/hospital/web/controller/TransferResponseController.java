@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/transfers")
+@RequestMapping("/api/v1/hospital/transfers")
 @ConditionalOnProperty(name = "app.websocket.enabled", havingValue = "true")
 public class TransferResponseController {
 
