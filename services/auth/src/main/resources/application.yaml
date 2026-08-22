@@ -1,0 +1,43 @@
+server:
+  shutdown: graceful
+
+spring:
+  application:
+    name: auth
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  data:
+    redis:
+      repositories:
+        enabled: false
+  flyway:
+    locations:
+      - classpath:db/migration/{vendor}
+      - classpath:db/seed
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-expiration: 1h
+  refresh-expiration: 14d
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+app:
+  redis:
+    auth:
+      host: ${REDIS_AUTH_HOST}
+      port: ${REDIS_AUTH_PORT}
+  refresh-token:
+    cookie:
+      name: refresh_token
+      path: /api/v1/auth
