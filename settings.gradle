@@ -1,3 +1,4 @@
 rootProject.name = 'aiems'
 
 include 'libs:platform'
+include 'libs:contracts'
