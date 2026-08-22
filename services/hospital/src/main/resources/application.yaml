@@ -1,0 +1,41 @@
+server:
+  shutdown: graceful
+
+spring:
+  application:
+    name: hospital
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  data:
+    redis:
+      repositories:
+        enabled: false
+  flyway:
+    locations:
+      - classpath:db/migration/{vendor}
+      - classpath:db/seed
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ai_server
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+app:
+  redis:
+    service:
+      host: ${REDIS_SERVICE_HOST}
+      port: ${REDIS_SERVICE_PORT}
+  services:
+    transfer-url: ${TRANSFER_SERVICE_URL}
