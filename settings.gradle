@@ -1,1 +1,3 @@
 rootProject.name = 'aiems'
+
+include 'libs:platform'
