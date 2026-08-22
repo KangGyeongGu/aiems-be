@@ -1,0 +1,29 @@
+server:
+  shutdown: graceful
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth
+          uri: ${SVC_AUTH_URL}
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: ambulance
+          uri: ${SVC_AMBULANCE_URL}
+          predicates:
+            - Path=/api/v1/ambulance/**
+        - id: hospital
+          uri: ${SVC_HOSPITAL_URL}
+          predicates:
+            - Path=/api/v1/hospital/**
+        - id: transfer
+          uri: ${SVC_TRANSFER_URL}
+          predicates:
+            - Path=/api/v1/transfers/**
+        - id: notification
+          uri: ${SVC_NOTIFICATION_URL}
+          predicates:
+            - Path=/ws/**
