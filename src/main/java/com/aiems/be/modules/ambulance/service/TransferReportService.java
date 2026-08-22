@@ -10,14 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class TransferJournalService {
+public class TransferReportService {
 
     private final PatientService patientService;
     private final AiMessageClient aiMessageClient;
 
     @Transactional(readOnly = true)
-    public void requestJournal(Long ambulanceId, String message) {
+    public void requestReport(Long ambulanceId, String audioKey) {
         Patient patient = patientService.findCurrentPatient(ambulanceId);
-        aiMessageClient.publishSummaryRequest(SummaryJobMessage.request(ambulanceId, message, patient));
+        aiMessageClient.publishSummaryRequest(SummaryJobMessage.request(ambulanceId, audioKey, patient));
     }
 }

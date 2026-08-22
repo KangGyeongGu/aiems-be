@@ -3,6 +3,7 @@ package com.aiems.be.modules.transfer.repository;
 import com.aiems.be.modules.transfer.domain.Gender;
 import com.aiems.be.modules.transfer.domain.PreKTAS;
 import com.aiems.be.modules.transfer.domain.TransferRecord;
+import com.aiems.be.modules.transfer.repository.projection.AmbulanceTransferSummary;
 import com.aiems.be.modules.transfer.repository.projection.TransferRecordDetail;
 import com.aiems.be.modules.transfer.repository.projection.TransferRecordSummary;
 import org.springframework.data.domain.Page;
@@ -101,4 +102,15 @@ public interface TransferRecordRepository extends JpaRepository<TransferRecord, 
     Optional<TransferRecord> findOngoingTransferRecord(Long ambulanceId);
 
     Optional<TransferRecord> findByAmbulanceIdAndPatientId(Long ambulanceId, Long patientId);
+
+    @Query("""
+        SELECT new com.aiems.be.modules.transfer.repository.projection.AmbulanceTransferSummary(
+            tr.id, tr.startedAt, tr.endedAt, h.name, p.name, p.preKtas, tr.transferReport)
+        FROM TransferRecord tr
+        JOIN Patient p ON tr.patientId = p.id
+        JOIN Hospital h ON tr.hospitalId = h.id
+        WHERE tr.ambulanceId = :ambulanceId
+    """)
+    Page<AmbulanceTransferSummary> findSummariesByAmbulanceId(
+            @Param("ambulanceId") Long ambulanceId, Pageable pageable);
 }

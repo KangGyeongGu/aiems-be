@@ -6,11 +6,11 @@ import com.aiems.be.modules.transfer.domain.VitalSign;
 
 public record SummaryJobMessage(
         Long ambulanceId,
-        String message,
+        String audioKey,
         PatientSnapshot patient
 ) {
-    public static SummaryJobMessage request(Long ambulanceId, String message, Patient patient) {
-        return new SummaryJobMessage(ambulanceId, message, PatientSnapshot.from(patient));
+    public static SummaryJobMessage request(Long ambulanceId, String audioKey, Patient patient) {
+        return new SummaryJobMessage(ambulanceId, audioKey, PatientSnapshot.from(patient));
     }
 
     public record PatientSnapshot(

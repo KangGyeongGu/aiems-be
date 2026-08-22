@@ -26,6 +26,7 @@ import java.util.List;
 public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String USER_DESTINATION_PREFIX = "/user/";
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -37,7 +38,8 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
         switch (accessor.getCommand()) {
             case CONNECT -> handleConnect(accessor);
-            case SUBSCRIBE, SEND -> requireAuthenticated(accessor);
+            case SUBSCRIBE -> authorizeSubscribe(accessor);
+            case SEND -> throw new MessageDeliveryException("허용되지 않은 전송입니다.");
             default -> {}
         }
 
@@ -69,11 +71,15 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         accessor.setUser(authentication);
     }
 
-    private void requireAuthenticated(StompHeaderAccessor accessor) {
+    private void authorizeSubscribe(StompHeaderAccessor accessor) {
         if (accessor.getUser() == null) {
             throw new MessageDeliveryException("인증이 필요합니다.");
         }
 
+        String destination = accessor.getDestination();
+        if (destination == null || !destination.startsWith(USER_DESTINATION_PREFIX)) {
+            throw new MessageDeliveryException("허용되지 않은 구독입니다.");
+        }
     }
 
 }

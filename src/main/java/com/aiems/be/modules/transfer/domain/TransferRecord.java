@@ -43,4 +43,8 @@ public class TransferRecord extends BaseTimeEntity {
     public void updateTreatmentRecord(String treatmentRecord) {
         this.treatmentRecord = treatmentRecord;
     }
+
+    public void updateTransferReport(String transferReport) {
+        this.transferReport = transferReport;
+    }
 }

@@ -44,6 +44,9 @@ dependencies {
     /** RabbitMQ 비동기 + STOMP 릴레이 */
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+    /** 오브젝트 스토리지 */
+    implementation 'software.amazon.awssdk:s3:2.29.45'
+
     /** STOMP Broker Relay */
     implementation 'io.projectreactor.netty:reactor-netty-core'
     implementation 'io.projectreactor.netty:reactor-netty-http'
