@@ -1,5 +1,7 @@
 name: aiems-app
 
+# 다중 인스턴스 검증용 - was 2대(STOMP 릴레이 경유 상호 전달) + batch 1대(역할 분리 기동)
+# 사전 조건: 인프라 compose(docker-compose.yml) 기동 후 실행
 services:
   app-1:
     build:

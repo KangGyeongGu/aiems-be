@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS auth_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS transfer_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS hospital_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS ambulance_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS bed_ingestion_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON auth_db.* TO 'aiems'@'%';
+GRANT ALL PRIVILEGES ON transfer_db.* TO 'aiems'@'%';
+GRANT ALL PRIVILEGES ON hospital_db.* TO 'aiems'@'%';
+GRANT ALL PRIVILEGES ON ambulance_db.* TO 'aiems'@'%';
+GRANT ALL PRIVILEGES ON bed_ingestion_db.* TO 'aiems'@'%';
+FLUSH PRIVILEGES;

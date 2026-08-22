@@ -1,0 +1,111 @@
+name: aiems-local
+
+x-rabbitmq: &rabbitmq
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_RELAY_PORT: "61613"
+  RABBITMQ_USERNAME: aiems
+  RABBITMQ_PASSWORD: aiems
+
+x-minio: &minio
+  MINIO_ENDPOINT: http://minio:9000
+  MINIO_REGION: ap-northeast-2
+  MINIO_ACCESS_KEY: aiems
+  MINIO_SECRET_KEY: aiems1234
+  MINIO_VOICE_BUCKET: aiems-voice
+  MINIO_REPORT_BUCKET: aiems-report
+  MINIO_PRESIGN_TTL_MINUTES: "10"
+
+x-dbcreds: &dbcreds
+  DB_USERNAME: aiems
+  DB_PASSWORD: aiems
+
+x-security: &security
+  JWT_SECRET_KEY: local-dev-secret-key-change-me-please-256-bit
+  JWT_ACCESS_EXPIRATION: 1h
+  JWT_REFRESH_EXPIRATION: 14d
+  CORS_ALLOWED_ORIGINS: http://localhost:3000
+
+services:
+  gateway:
+    build: { context: ../../services/gateway }
+    ports: ["8080:8080"]
+    environment:
+      SVC_AUTH_URL: http://auth:8080
+      SVC_AMBULANCE_URL: http://ambulance:8080
+      SVC_HOSPITAL_URL: http://hospital:8080
+      SVC_TRANSFER_URL: http://transfer:8080
+      SVC_NOTIFICATION_URL: http://notification:8080
+
+  auth:
+    build: { context: ../../services/auth }
+    ports: ["8081:8080"]
+    environment:
+      <<: [*dbcreds, *security]
+      DB_URL: "jdbc:mysql://mysql:3306/auth_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      REDIS_AUTH_HOST: redis-auth
+      REDIS_AUTH_PORT: "6379"
+    depends_on:
+      mysql: { condition: service_healthy }
+
+  transfer:
+    build: { context: ../../services/transfer }
+    ports: ["8082:8080"]
+    environment:
+      <<: [*dbcreds, *rabbitmq, *minio, *security]
+      DB_URL: "jdbc:mysql://mysql:3306/transfer_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      REDIS_SERVICE_HOST: redis-service
+      REDIS_SERVICE_PORT: "6379"
+      HOSPITAL_SERVICE_URL: http://hospital:8080
+      AMBULANCE_SERVICE_URL: http://ambulance:8080
+    depends_on:
+      mysql: { condition: service_healthy }
+
+  hospital:
+    build: { context: ../../services/hospital }
+    ports: ["8083:8080"]
+    environment:
+      <<: [*dbcreds, *rabbitmq, *security]
+      DB_URL: "jdbc:mysql://mysql:3306/hospital_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      REDIS_SERVICE_HOST: redis-service
+      REDIS_SERVICE_PORT: "6379"
+      TRANSFER_SERVICE_URL: http://transfer:8080
+    depends_on:
+      mysql: { condition: service_healthy }
+
+  ambulance:
+    build: { context: ../../services/ambulance }
+    ports: ["8084:8080"]
+    environment:
+      <<: [*dbcreds, *security]
+      DB_URL: "jdbc:mysql://mysql:3306/ambulance_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+    depends_on:
+      mysql: { condition: service_healthy }
+
+  control:
+    build: { context: ../../services/control }
+    ports: ["8085:8080"]
+    environment:
+      <<: *security
+
+  ai:
+    build: { context: ../../services/ai }
+    ports: ["8086:8080"]
+    environment:
+      <<: [*rabbitmq, *security]
+
+  notification:
+    build: { context: ../../services/notification }
+    ports: ["8087:8080"]
+    environment:
+      <<: [*rabbitmq, *security]
+
+  bed-ingestion:
+    build: { context: ../../services/bed-ingestion }
+    environment:
+      <<: [*dbcreds, *rabbitmq, *security]
+      DB_URL: "jdbc:mysql://mysql:3306/bed_ingestion_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      OPEN_DATA_PORTAL_API_KEY: local-mock-key
+      OPEN_DATA_PORTAL_BASE_URL: http://localhost:8080/mock
+    depends_on:
+      mysql: { condition: service_healthy }
