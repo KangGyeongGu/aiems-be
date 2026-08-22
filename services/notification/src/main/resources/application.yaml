@@ -1,0 +1,37 @@
+server:
+  shutdown: graceful
+
+spring:
+  application:
+    name: notification
+  profiles:
+    default: local
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ai_server
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-expiration: 1h
+  refresh-expiration: 14d
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+websocket:
+  relay:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_RELAY_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ai_server
