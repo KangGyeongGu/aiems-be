@@ -1,10 +1,9 @@
 package com.aiems.be.hospital.web.controller;
 
-import com.aiems.be.common.domain.PreKTAS;
-import com.aiems.be.contracts.bed.BedInfo;
+import com.aiems.be.contracts.hospital.HospitalRecommendRequest;
+import com.aiems.be.contracts.hospital.HospitalRecommendResponse;
 import com.aiems.be.hospital.service.HospitalRecommendService;
 import com.aiems.be.hospital.service.RecommendedHospital;
-import com.aiems.be.contracts.ai.SpecialtyConfidence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,41 +20,24 @@ public class HospitalRecommendController {
     private final HospitalRecommendService hospitalRecommendService;
 
     @PostMapping
-    public List<Response> recommend(@RequestBody Request request) {
+    public List<HospitalRecommendResponse> recommend(@RequestBody HospitalRecommendRequest request) {
         return hospitalRecommendService.recommend(
                         request.longitude(),
                         request.latitude(),
                         request.preKtas(),
                         request.specialtyConfidences())
                 .stream()
-                .map(Response::from)
+                .map(HospitalRecommendController::toResponse)
                 .toList();
     }
 
-    public record Request(
-            double longitude,
-            double latitude,
-            PreKTAS preKtas,
-            List<SpecialtyConfidence> specialtyConfidences
-    ) {
-    }
-
-    public record Response(
-            Long hospitalId,
-            String name,
-            String hpid,
-            Double distance,
-            double score,
-            BedInfo bedInfo
-    ) {
-        public static Response from(RecommendedHospital recommended) {
-            return new Response(
-                    recommended.hospital().getId(),
-                    recommended.hospital().getName(),
-                    recommended.hospital().getHpid(),
-                    recommended.distance(),
-                    recommended.score(),
-                    recommended.bedInfo());
-        }
+    private static HospitalRecommendResponse toResponse(RecommendedHospital recommended) {
+        return new HospitalRecommendResponse(
+                recommended.hospital().getId(),
+                recommended.hospital().getName(),
+                recommended.hospital().getHpid(),
+                recommended.distance(),
+                recommended.score(),
+                recommended.bedInfo());
     }
 }

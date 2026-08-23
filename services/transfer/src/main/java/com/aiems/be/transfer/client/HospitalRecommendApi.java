@@ -1,5 +1,7 @@
 package com.aiems.be.transfer.client;
 
+import com.aiems.be.contracts.hospital.HospitalRecommendRequest;
+import com.aiems.be.contracts.hospital.HospitalRecommendResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -9,5 +11,5 @@ import java.util.List;
 public interface HospitalRecommendApi {
 
     @PostMapping("/internal/hospitals/recommendations")
-    List<HospitalRecommendClient.RecommendedHospital> recommend(HospitalRecommendClient.Request request);
+    List<HospitalRecommendResponse> recommend(HospitalRecommendRequest request);
 }

@@ -6,6 +6,7 @@ import com.aiems.be.transfer.service.TransferConfirmService;
 import com.aiems.be.transfer.service.TransferRecordService;
 import com.aiems.be.transfer.service.TransferRequestService;
 import com.aiems.be.transfer.storage.MinioStorage;
+import com.aiems.be.transfer.web.response.TransferReportResponse;
 import com.aiems.be.transfer.web.request.TransferConfirmRequest;
 import com.aiems.be.transfer.web.request.TransferRequest;
 import com.aiems.be.transfer.web.response.AmbulanceTransferSummaryResponse;
@@ -81,8 +82,5 @@ public class TransferController {
 
     private Long currentAmbulanceId() {
         return Long.valueOf(SecurityUtil.getCurrentUserId());
-    }
-
-    public record TransferReportResponse(String url) {
     }
 }

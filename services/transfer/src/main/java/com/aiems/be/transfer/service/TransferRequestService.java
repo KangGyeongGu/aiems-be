@@ -2,7 +2,7 @@ package com.aiems.be.transfer.service;
 
 import com.aiems.be.transfer.client.AmbulanceClient;
 import com.aiems.be.transfer.client.HospitalRecommendClient;
-import com.aiems.be.transfer.client.HospitalRecommendClient.RecommendedHospital;
+import com.aiems.be.contracts.hospital.HospitalRecommendResponse;
 import com.aiems.be.transfer.domain.Patient;
 import com.aiems.be.contracts.ambulance.AmbulanceSnapshot;
 import com.aiems.be.contracts.transfer.RecommendedHospitalsMessage;
@@ -56,19 +56,19 @@ public class TransferRequestService {
         double lon = patient.getLocation().getCoordinates().getX();
         double lat = patient.getLocation().getCoordinates().getY();
 
-        List<RecommendedHospital> candidates = hospitalRecommendClient.recommend(
+        List<HospitalRecommendResponse> candidates = hospitalRecommendClient.recommend(
                         lon, lat, result.preKTAS(), result.specialtyConfidences()).stream()
                 .limit(MAX_REQUESTED_HOSPITAL_COUNT)
                 .toList();
 
         notifyHospitals(candidates, patient);
         transferSnapshotService.save(result.ambulanceId(), candidates.stream()
-                .map(RecommendedHospital::hospitalId)
+                .map(HospitalRecommendResponse::hospitalId)
                 .toList());
         replyToAmbulance(result.ambulanceId(), candidates);
     }
 
-    private void notifyHospitals(List<RecommendedHospital> candidates, Patient patient) {
+    private void notifyHospitals(List<HospitalRecommendResponse> candidates, Patient patient) {
         candidates.forEach(candidate -> {
             TransferRequestMessage message = TransferMessageMapper.toRequestMessage(patient, candidate.distance());
             notificationPublisher.sendToUser(
@@ -80,7 +80,7 @@ public class TransferRequestService {
         });
     }
 
-    private void replyToAmbulance(Long ambulanceId, List<RecommendedHospital> candidates) {
+    private void replyToAmbulance(Long ambulanceId, List<HospitalRecommendResponse> candidates) {
         List<RecommendedHospitalsMessage.Item> items = candidates.stream()
                 .map(candidate -> new RecommendedHospitalsMessage.Item(
                         candidate.hospitalId(),
