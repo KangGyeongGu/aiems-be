@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: bed-ingestion
+  profiles:
+    default: local
   main:
     web-application-type: none
   autoconfigure:

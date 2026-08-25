@@ -19,10 +19,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AiClassificationMockConsumer {
 
+    private static final long AI_PROCESSING_MILLIS = 3_000L;
+
     private final RabbitTemplate rabbitTemplate;
 
-    @RabbitListener(queues = AiMessaging.QUEUE_CLASSIFICATION)
-    public void classify(TransferRequested event) {
+    @RabbitListener(queues = AiMessaging.QUEUE_CLASSIFICATION, concurrency = "60")
+    public void classify(TransferRequested event) throws InterruptedException {
+        Thread.sleep(AI_PROCESSING_MILLIS);
+
         List<SpecialtyConfidence> confidences = List.of(
                 new SpecialtyConfidence(Specialty.INTERNAL_MEDICINE, 0.82f),
                 new SpecialtyConfidence(Specialty.GENERAL_SURGERY, 0.61f));

@@ -1,6 +1,6 @@
 package com.aiems.be.bedingestion.batch;
 
-import com.aiems.be.bedingestion.client.NationalMedicalCenterClient;
+import com.aiems.be.bedingestion.client.BedInfoClient;
 import com.aiems.be.contracts.bed.BedInfoResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.tools.jsonrpc.JsonRpcException;
@@ -25,7 +25,7 @@ public class BedCacheBatchConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
-    private final NationalMedicalCenterClient client;
+    private final BedInfoClient client;
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
 

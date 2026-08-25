@@ -16,11 +16,14 @@ import org.springframework.stereotype.Component;
 public class AiSummaryMockConsumer {
 
     private static final String MOCK_REPORT_KEY = "report/mock/mock-report.pdf";
+    private static final long AI_PROCESSING_MILLIS = 3_000L;
 
     private final RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = AiMessaging.QUEUE_SUMMARY)
-    public void summarize(SummaryJobMessage jobMessage, Message raw) {
+    public void summarize(SummaryJobMessage jobMessage, Message raw) throws InterruptedException {
+        Thread.sleep(AI_PROCESSING_MILLIS);
+
         SummaryReportMessage reply = new SummaryReportMessage(
                 jobMessage.ambulanceId(), jobMessage.patient().id(), MOCK_REPORT_KEY);
 
