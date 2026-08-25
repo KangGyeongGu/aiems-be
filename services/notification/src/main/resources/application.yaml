@@ -1,5 +1,8 @@
 server:
   shutdown: graceful
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 spring:
   application:
@@ -35,3 +38,21 @@ websocket:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     virtual-host: ai_server
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true

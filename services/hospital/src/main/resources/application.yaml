@@ -1,5 +1,8 @@
 server:
   shutdown: graceful
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 spring:
   application:
@@ -39,3 +42,21 @@ app:
       port: ${REDIS_SERVICE_PORT}
   services:
     transfer-url: ${TRANSFER_SERVICE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
