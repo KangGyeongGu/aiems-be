@@ -1,6 +1,5 @@
 package com.aiems.be.notification.websocket.config;
 
-import com.aiems.be.common.config.CorsProperties;
 import com.aiems.be.notification.websocket.exception.StompErrorHandler;
 import com.aiems.be.notification.websocket.security.StompAuthChannelInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
     private final StompErrorHandler stompErrorHandler;
-    private final CorsProperties corsProperties;
     private final StompRelayProperties relayProperties;
 
     @Override
@@ -45,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.setErrorHandler(stompErrorHandler);
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(corsProperties.allowedOrigins().toArray(String[]::new));
+                .setAllowedOriginPatterns("*");
     }
 
     @Override
