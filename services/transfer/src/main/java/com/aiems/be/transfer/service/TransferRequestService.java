@@ -38,7 +38,6 @@ public class TransferRequestService {
     private final TransferSnapshotService transferSnapshotService;
     private final NotificationPublisher notificationPublisher;
 
-    @Transactional
     public void request(TransferRequest payload, Long ambulanceId) {
         AmbulanceSnapshot ambulance = ambulanceClient.getSnapshot(ambulanceId);
 
