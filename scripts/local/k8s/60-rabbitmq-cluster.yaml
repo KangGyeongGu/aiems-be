@@ -1,0 +1,41 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq
+  namespace: aiems
+spec:
+  replicas: 3
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1536Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_stomp
+      - rabbitmq_prometheus
+    additionalConfig: |
+      vm_memory_high_watermark.relative = 0.8
+  override:
+    service:
+      spec:
+        ports:
+          - name: stomp
+            protocol: TCP
+            port: 61613
+            targetPort: 61613
+    statefulSet:
+      spec:
+        template:
+          metadata:
+            labels:
+              app: rabbitmq
+          spec:
+            containers:
+              - name: rabbitmq
+                ports:
+                  - containerPort: 61613
+                    name: stomp
+                    protocol: TCP
