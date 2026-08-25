@@ -1,0 +1,39 @@
+server:
+  shutdown: graceful
+
+spring:
+  application:
+    name: bed-ingestion
+  profiles:
+    default: local
+  main:
+    web-application-type: none
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ai_server
+    publisher-confirm-type: correlated
+    publisher-returns: true
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+openapi:
+  nmc:
+    api-key: ${OPEN_DATA_PORTAL_API_KEY}
+    base-url: ${OPEN_DATA_PORTAL_BASE_URL}

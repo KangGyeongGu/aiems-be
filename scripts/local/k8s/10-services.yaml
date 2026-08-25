@@ -1,0 +1,772 @@
+# All 9 MSA services. Images: aiems-local-<svc>:latest (loaded into minikube).
+# Env mirrors scripts/local/docker-compose.msa.yml exactly.
+# JAVA_TOOL_OPTIONS pins heap to container memory limit to avoid OOM.
+# ---------------------------------------------------------------------------
+# gateway
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: gateway
+          image: aiems-local-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: SVC_AUTH_URL
+              value: http://auth:8080
+            - name: SVC_AMBULANCE_URL
+              value: http://ambulance:8080
+            - name: SVC_HOSPITAL_URL
+              value: http://hospital:8080
+            - name: SVC_TRANSFER_URL
+              value: http://transfer:8080
+            - name: SVC_NOTIFICATION_URL
+              value: http://notification:8080
+          resources:
+            requests:
+              cpu: 300m
+              memory: 768Mi
+            limits:
+              cpu: "1"
+              memory: 1536Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: aiems
+spec:
+  type: ClusterIP
+  selector:
+    app: gateway
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# auth (DB + redis-auth)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: auth
+          image: aiems-local-auth:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: DB_USERNAME
+              value: aiems
+            - name: DB_PASSWORD
+              value: aiems
+            - name: DB_URL
+              value: "jdbc:mysql://mysql:3306/auth_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+            - name: REDIS_AUTH_HOST
+              value: redis-auth
+            - name: REDIS_AUTH_PORT
+              value: "6379"
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  namespace: aiems
+spec:
+  selector:
+    app: auth
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# transfer (DB + rabbitmq + minio + redis-service)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transfer
+  namespace: aiems
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transfer
+  template:
+    metadata:
+      labels:
+        app: transfer
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: transfer
+          image: aiems-local-transfer:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: DB_USERNAME
+              value: aiems
+            - name: DB_PASSWORD
+              value: aiems
+            - name: DB_URL
+              value: "jdbc:mysql://mysql:3306/transfer_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_RELAY_PORT
+              value: "61613"
+            - name: RABBITMQ_USERNAME
+              value: aiems
+            - name: RABBITMQ_PASSWORD
+              value: aiems
+            - name: MINIO_ENDPOINT
+              value: http://minio:9000
+            - name: MINIO_REGION
+              value: ap-northeast-2
+            - name: MINIO_ACCESS_KEY
+              value: aiems
+            - name: MINIO_SECRET_KEY
+              value: aiems1234
+            - name: MINIO_VOICE_BUCKET
+              value: aiems-voice
+            - name: MINIO_REPORT_BUCKET
+              value: aiems-report
+            - name: MINIO_PRESIGN_TTL_MINUTES
+              value: "10"
+            - name: REDIS_SERVICE_HOST
+              value: redis-service
+            - name: REDIS_SERVICE_PORT
+              value: "6379"
+            - name: HOSPITAL_SERVICE_URL
+              value: http://hospital:8080
+            - name: AMBULANCE_SERVICE_URL
+              value: http://ambulance:8080
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 500m
+              memory: 640Mi
+            limits:
+              cpu: "1.5"
+              memory: 1024Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transfer
+  namespace: aiems
+spec:
+  selector:
+    app: transfer
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# hospital (DB + rabbitmq + redis-service)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hospital
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hospital
+  template:
+    metadata:
+      labels:
+        app: hospital
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: hospital
+          image: aiems-local-hospital:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: DB_USERNAME
+              value: aiems
+            - name: DB_PASSWORD
+              value: aiems
+            - name: DB_URL
+              value: "jdbc:mysql://mysql:3306/hospital_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_RELAY_PORT
+              value: "61613"
+            - name: RABBITMQ_USERNAME
+              value: aiems
+            - name: RABBITMQ_PASSWORD
+              value: aiems
+            - name: REDIS_SERVICE_HOST
+              value: redis-service
+            - name: REDIS_SERVICE_PORT
+              value: "6379"
+            - name: TRANSFER_SERVICE_URL
+              value: http://transfer:8080
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 500m
+              memory: 640Mi
+            limits:
+              cpu: "1.5"
+              memory: 1280Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hospital
+  namespace: aiems
+spec:
+  selector:
+    app: hospital
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# ambulance (DB only)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ambulance
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ambulance
+  template:
+    metadata:
+      labels:
+        app: ambulance
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: ambulance
+          image: aiems-local-ambulance:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: DB_USERNAME
+              value: aiems
+            - name: DB_PASSWORD
+              value: aiems
+            - name: DB_URL
+              value: "jdbc:mysql://mysql:3306/ambulance_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 640Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ambulance
+  namespace: aiems
+spec:
+  selector:
+    app: ambulance
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# control (security only, no DB — excludes DataSource autoconfig)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: control
+  template:
+    metadata:
+      labels:
+        app: control
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: control
+          image: aiems-local-control:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: control
+  namespace: aiems
+spec:
+  selector:
+    app: control
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# ai (rabbitmq + security, stateless)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai
+  template:
+    metadata:
+      labels:
+        app: ai
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: ai
+          image: aiems-local-ai:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_RELAY_PORT
+              value: "61613"
+            - name: RABBITMQ_USERNAME
+              value: aiems
+            - name: RABBITMQ_PASSWORD
+              value: aiems
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai
+  namespace: aiems
+spec:
+  selector:
+    app: ai
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# notification (rabbitmq + security, stateless)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+  namespace: aiems
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: notification
+          image: aiems-local-notification:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_RELAY_PORT
+              value: "61613"
+            - name: RABBITMQ_USERNAME
+              value: aiems
+            - name: RABBITMQ_PASSWORD
+              value: aiems
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 300m
+              memory: 640Mi
+            limits:
+              cpu: "1.5"
+              memory: 1200Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification
+  namespace: aiems
+spec:
+  selector:
+    app: notification
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ---------------------------------------------------------------------------
+# bed-ingestion (DB + rabbitmq, batch — replicas stays 1, no HPA)
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bed-ingestion
+  namespace: aiems
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bed-ingestion
+  template:
+    metadata:
+      labels:
+        app: bed-ingestion
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306 && nc -z rabbitmq 5672; do echo waiting-for-infra; sleep 2; done"]
+      containers:
+        - name: bed-ingestion
+          image: aiems-local-bed-ingestion:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: local
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70"
+            - name: DB_USERNAME
+              value: aiems
+            - name: DB_PASSWORD
+              value: aiems
+            - name: DB_URL
+              value: "jdbc:mysql://mysql:3306/bed_ingestion_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_RELAY_PORT
+              value: "61613"
+            - name: RABBITMQ_USERNAME
+              value: aiems
+            - name: RABBITMQ_PASSWORD
+              value: aiems
+            - name: OPEN_DATA_PORTAL_API_KEY
+              value: local-mock-key
+            - name: OPEN_DATA_PORTAL_BASE_URL
+              value: http://localhost:8080/mock
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
+            - name: JWT_ACCESS_EXPIRATION
+              value: 1h
+            - name: JWT_REFRESH_EXPIRATION
+              value: 14d
+            - name: CORS_ALLOWED_ORIGINS
+              value: http://localhost:3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pgrep -f app.jar > /dev/null"]
+            initialDelaySeconds: 40
+            periodSeconds: 15
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bed-ingestion
+  namespace: aiems
+spec:
+  selector:
+    app: bed-ingestion
+  ports:
+    - port: 8080
+      targetPort: 8080

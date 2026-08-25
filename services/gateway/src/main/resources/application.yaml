@@ -1,0 +1,50 @@
+server:
+  shutdown: graceful
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth
+          uri: ${SVC_AUTH_URL}
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: ambulance
+          uri: ${SVC_AMBULANCE_URL}
+          predicates:
+            - Path=/api/v1/ambulance/**
+        - id: hospital
+          uri: ${SVC_HOSPITAL_URL}
+          predicates:
+            - Path=/api/v1/hospital/**
+        - id: transfer
+          uri: ${SVC_TRANSFER_URL}
+          predicates:
+            - Path=/api/v1/transfers/**
+        - id: notification
+          uri: ${SVC_NOTIFICATION_URL}
+          predicates:
+            - Path=/ws/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
