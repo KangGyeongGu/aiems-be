@@ -42,6 +42,8 @@ spec:
               value: http://transfer:8080
             - name: SVC_NOTIFICATION_URL
               value: http://notification:8080
+            - name: JWT_SECRET_KEY
+              value: local-dev-secret-key-change-me-please-256-bit
           resources:
             requests:
               cpu: 300m

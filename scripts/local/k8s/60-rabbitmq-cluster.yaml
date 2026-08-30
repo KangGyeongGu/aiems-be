@@ -18,6 +18,7 @@ spec:
       - rabbitmq_prometheus
     additionalConfig: |
       vm_memory_high_watermark.relative = 0.8
+      load_definitions = /etc/rabbitmq/definitions.json
   override:
     service:
       spec:
@@ -39,3 +40,11 @@ spec:
                   - containerPort: 61613
                     name: stomp
                     protocol: TCP
+                volumeMounts:
+                  - name: definitions
+                    mountPath: /etc/rabbitmq/definitions.json
+                    subPath: definitions.json
+            volumes:
+              - name: definitions
+                configMap:
+                  name: rabbitmq-definitions
