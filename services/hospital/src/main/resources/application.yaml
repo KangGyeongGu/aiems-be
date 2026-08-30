@@ -44,6 +44,12 @@ app:
     transfer-url: ${TRANSFER_SERVICE_URL}
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://jaeger.monitoring:4318/v1/traces
   endpoints:
     web:
       exposure:

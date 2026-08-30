@@ -37,3 +37,11 @@ openapi:
   nmc:
     api-key: ${OPEN_DATA_PORTAL_API_KEY}
     base-url: ${OPEN_DATA_PORTAL_BASE_URL}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://jaeger.monitoring:4318/v1/traces
