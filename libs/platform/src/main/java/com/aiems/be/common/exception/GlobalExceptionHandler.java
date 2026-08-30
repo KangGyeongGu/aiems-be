@@ -2,11 +2,9 @@ package com.aiems.be.common.exception;
 
 import com.aiems.be.common.dto.ErrorDetail;
 import com.aiems.be.common.dto.ErrorResponse;
-import com.aiems.be.common.filter.RequestIdFilter;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -28,16 +26,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
-        String requestId = MDC.get(RequestIdFilter.MDC_KEY);
         ErrorCode errorCode = ex.getErrorCode();
 
-        log.warn("Business Exception: code={}, message={}, requestId={}", errorCode.getCode(), ex.getMessage(), requestId);
+        log.warn("Business Exception: code={}, message={}", errorCode.getCode(), ex.getMessage());
 
         ErrorDetail errorDetail = ErrorDetail.of(errorCode.getCode(), ex.getMessage(), ex.getDetails());
 
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
-                .body(ErrorResponse.of(errorDetail, requestId));
+                .body(ErrorResponse.of(errorDetail));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -93,28 +90,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
-        log.warn("Access denied: message={}, requestId={}", ex.getMessage(), MDC.get(RequestIdFilter.MDC_KEY));
+        log.warn("Access denied: message={}", ex.getMessage());
         return respond(CommonErrorCode.ACCESS_DENIED);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex) {
-        log.error("Unexpected exception: requestId={}", MDC.get(RequestIdFilter.MDC_KEY), ex);
+        log.error("Unexpected exception", ex);
         return respond(CommonErrorCode.INTERNAL_ERROR);
     }
 
     private ResponseEntity<ErrorResponse> respond(ErrorCode errorCode) {
-        String requestId = MDC.get(RequestIdFilter.MDC_KEY);
         ErrorDetail errorDetail = ErrorDetail.of(errorCode.getCode(), errorCode.getDefaultMessage());
 
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
-                .body(ErrorResponse.of(errorDetail, requestId));
+                .body(ErrorResponse.of(errorDetail));
     }
 
     private ResponseEntity<ErrorResponse> fieldErrorResponse(List<ErrorDetail.FieldError> fieldErrors) {
-        String requestId = MDC.get(RequestIdFilter.MDC_KEY);
-
         ErrorDetail errorDetail = ErrorDetail.withFieldErrors(
                 CommonErrorCode.VALIDATION_FAILED.getCode(),
                 CommonErrorCode.VALIDATION_FAILED.getDefaultMessage(),
@@ -123,7 +117,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(CommonErrorCode.VALIDATION_FAILED.getHttpStatus())
-                .body(ErrorResponse.of(errorDetail, requestId));
+                .body(ErrorResponse.of(errorDetail));
     }
 
     private ErrorDetail.FieldError toFieldError(FieldError fieldError) {

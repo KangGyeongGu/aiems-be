@@ -9,15 +9,16 @@ Origin Organization: [SSAFY-13th-2nd-semester-final](https://github.com/SSAFY-13
 - Java 21, Gradle, Spring Boot 3.5, Spring Batch
 - Spring Data JPA, MySQL(hibernate-spatial), Flyway, Redis
 - Spring Cloud Gateway, Spring Security, JWT
-- RabbitMQ (AMQP·STOMP Relay)
+- RabbitMQ
 
 ## 구현 범위
 
 ### MSA 구축
 
-- 도메인 기준 8개 마이크로 서비스로 분리 설계
-- Spring Cloud Gateway 기반 서비스 단일 진입점 구현
-- 내부 서비스 간 OpenFeign 기반 REST 동기 · 비동기 RabbitMQ 이벤트
+- 8개 마이크로 서비스 분리 설계 및 구축
+- Spring Cloud Gateway 기반 서비스 라우팅 · 인증/인가 · 요청 추적
+- 내부 서비스 간 OpenFeign 기반 REST 동기 통신
+- 클라이언트 Websocket 이벤트 RabbitMQ STOMP Broker Relay 
 
 ### 병상 정보 수집 배치
 
@@ -31,7 +32,7 @@ Origin Organization: [SSAFY-13th-2nd-semester-final](https://github.com/SSAFY-13
 
 ### STOMP 브로커 릴레이
 
-- RabbitMQ Broker 기반 MSA 앱 간 이벤트 발행 · 전달
+- RabbitMQ Broker 기반 이벤트 브로드캐스트
 - CONNECT 프레임 JWT 인증 인터셉터
 
 ### 주체별 인증·인가

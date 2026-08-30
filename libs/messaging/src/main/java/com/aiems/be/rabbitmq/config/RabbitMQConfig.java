@@ -49,6 +49,7 @@ public class RabbitMQConfig {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
         rabbitTemplate.setReplyTimeout(60000);
+        rabbitTemplate.setObservationEnabled(true);
 
         rabbitTemplate.setMandatory(true);
 
@@ -73,6 +74,7 @@ public class RabbitMQConfig {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(messageConverter);
+        factory.setObservationEnabled(true);
         factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         factory.setPrefetchCount(10);
         factory.setAdviceChain(
