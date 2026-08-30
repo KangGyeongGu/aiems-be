@@ -8,7 +8,7 @@ public record ErrorResponse(
 
         Meta meta
 ) {
-    public static ErrorResponse of(ErrorDetail errorDetail, String requestId) {
-        return new ErrorResponse(errorDetail, Meta.create(requestId));
+    public static ErrorResponse of(ErrorDetail errorDetail) {
+        return new ErrorResponse(errorDetail, Meta.create());
     }
 }

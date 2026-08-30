@@ -2,11 +2,9 @@ package com.aiems.be.common.web;
 
 import com.aiems.be.common.dto.ApiResponse;
 import com.aiems.be.common.dto.ErrorResponse;
-import com.aiems.be.common.filter.RequestIdFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.MDC;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -55,7 +53,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
             return body;
         }
 
-        ApiResponse<Object> wrapped = ApiResponse.success(body, MDC.get(RequestIdFilter.MDC_KEY));
+        ApiResponse<Object> wrapped = ApiResponse.success(body);
 
         if (body instanceof String) {
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
